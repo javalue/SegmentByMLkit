@@ -25,6 +25,7 @@ import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 
 /** A processor to run Subject Segmenter. */
 class SubjectSegmenterProcessor {
+
     private val subjectSegmenter: SubjectSegmenter = SubjectSegmentation.getClient(
         SubjectSegmenterOptions.Builder().enableMultipleSubjects(
             SubjectSegmenterOptions.SubjectResultOptions.Builder().enableConfidenceMask()

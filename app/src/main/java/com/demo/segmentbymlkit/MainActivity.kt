@@ -65,9 +65,10 @@ class MainActivity : AppCompatActivity() {
             popup.show()
         }
         findViewById<View>(R.id.segment_button).setOnClickListener { view: View? ->
-            val fromBitmap = InputImage.fromBitmap((preview?.drawable as BitmapDrawable).bitmap, 0)
-            subjectSegmenterProcessor.detectInImage(fromBitmap).addOnSuccessListener {
-                draw(it, fromBitmap)
+            val inputImage = InputImage.fromBitmap((preview?.drawable as BitmapDrawable).bitmap, 0)
+            //分割处理
+            subjectSegmenterProcessor.detectInImage(inputImage).addOnSuccessListener {
+                handleBitmap(it, inputImage)
             }.addOnFailureListener { e: Exception? ->
                 Log.e(TAG, "Error running subject segmenter.", e)
             }
@@ -86,14 +87,20 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun draw(result: SubjectSegmentationResult?, inputImage: InputImage) {
+    /**
+     * 加工分割后的点位信息
+     *
+     */
+    private fun handleBitmap(result: SubjectSegmentationResult?, inputImage: InputImage) {
+        //第一步通过点位生成二值的mask图
         val buffer = maskColorsFromFloatBuffer(result?.subjects, inputImage)
         val maskBitmap = Bitmap.createBitmap(
             buffer, inputImage.width, inputImage.height, Bitmap.Config.ARGB_8888
         )
-
+        //第二步，利用Xfermode比较原图和mask，抠出叠加的图
         val targetBitmap =
             createMaskedBitmap((preview?.drawable as BitmapDrawable).bitmap, maskBitmap)
+
         preview?.setImageBitmap(targetBitmap)
     }
 
